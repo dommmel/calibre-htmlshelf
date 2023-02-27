@@ -51,6 +51,13 @@ template_str = '''
                 <p><strong>Publisher:</strong> {{ book.publisher }}</p>
                 <p><strong>Published Date:</strong> {{ book.pubdate }}</p>
                 <p><strong>Comments:</strong> {{ book.comments }}</p>
+                <p><strong>Links:</strong>
+                    <ul>
+                        {% for link in book.links %}
+                            <li><a target="_blank" href="{{ link.url }}">{{ link.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </p>
             </div>
         </div>
     {% endfor %}
@@ -74,21 +81,46 @@ def copy_cover_image(cover_path):
     shutil.copy2(cover_path, os.path.join('dist',new_image_path))
     return new_image_path
 
+def build_links(identifiers, title):
+    links = []
+    if identifiers is not None:
+        for identifier in identifiers.split(','):
+            key, value = identifier.split(':')
+            if key == 'google':
+                links.append({
+                    'name': 'Google Books',
+                    'url': 'https://books.google.com/books?id=' + value
+                })
+            elif key == 'amazon':
+                links.append({
+                    'name': 'Amazon',
+                    'url': 'https://www.amazon.de/dp/' + value
+                })
+    # If no links were found or only one from google, add a link to Amazon
+    if len(links) == 0 or (len(links) == 1 and links[0]['name'] == 'Google Books'):
+        links.append({
+            'name': 'Amazon Search',
+            'url': 'https://www.amazon.de/gp/search?ie=UTF8&index=books&keywords=' + title
+        })
+    return links
 
 # Extract book data from XML file
 books = []
 for record in root.iter('record'):
-    cover_path = record.find('cover').text
+    cover_path = record.find('cover').text if record.find('cover') is not None else None
+    title = record.find('title').text if record.find('title') is not None else None
+    identifiers = record.find('identifiers').text if record.find('identifiers') is not None else None
     book = {
         'id': record.find('id').text,
-        'title': record.find('title').text,
+        'title': title,
         'authors': ', '.join([author.text for author in record.findall('authors/author')]),
         'language': record.find('languages').text if record.find('languages') is not None else None,
         'cover': copy_cover_image(cover_path),
         'publisher': record.find('publisher').text if record.find('publisher') is not None else None,
         'isbn': record.find('isbn').text if record.find('isbn') is not None else None,
         'comments': record.find('comments').text if record.find('comments') is not None else None,
-        'pubdate': record.find('pubdate').text if record.find('pubdate') is not None else None
+        'pubdate': record.find('pubdate').text if record.find('pubdate') is not None else None,
+        'links': build_links(identifiers, title)
     }
     books.append(book)
 
