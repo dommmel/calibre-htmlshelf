@@ -1,0 +1,6 @@
+.DS_Store
+books.xml
+dist/*
+Makefile
+.netlify
+netlify.toml

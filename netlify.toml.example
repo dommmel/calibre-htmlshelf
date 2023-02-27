@@ -1,0 +1,3 @@
+[build]
+  publish = "dist/"
+  command = "/Applications/calibre.app/Contents/MacOS/calibredb catalog books.xml && python3 run.py"
