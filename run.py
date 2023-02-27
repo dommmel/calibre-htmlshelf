@@ -46,6 +46,7 @@ template_str = '''
             <div class="book-info">
                 <h2>{{ book.title }}</h2>
                 <p><strong>Author:</strong> {{ book.authors }}</p>
+                <p><strong>Language:</strong> {{ book.language }}</p>
                 <p><strong>ISBN:</strong> {{ book.isbn }}</p>
                 <p><strong>Publisher:</strong> {{ book.publisher }}</p>
                 <p><strong>Published Date:</strong> {{ book.pubdate }}</p>
@@ -82,6 +83,7 @@ for record in root.iter('record'):
         'id': record.find('id').text,
         'title': record.find('title').text,
         'authors': ', '.join([author.text for author in record.findall('authors/author')]),
+        'language': record.find('languages').text if record.find('languages') is not None else None,
         'cover': copy_cover_image(cover_path),
         'publisher': record.find('publisher').text if record.find('publisher') is not None else None,
         'isbn': record.find('isbn').text if record.find('isbn') is not None else None,
