@@ -73,6 +73,7 @@ def make_safe_filename(filename):
 
 def copy_cover_image(cover_path):
     # Copy over cover images
+    cover_path = "book-default-cover.jpg" if cover_path is None else cover_path
     _, file_extension = os.path.splitext(cover_path)
     parent_dir, _ = os.path.split(cover_path)
     grandparent_dir, parent_dir = os.path.split(parent_dir)
@@ -130,5 +131,5 @@ template = Template(template_str)
 html_code = template.render(books=books)
 
 # Write the HTML code to a file
-with open('dist/index.html', 'w') as f:
+with open('dist/index.html', 'w', encoding="utf-8") as f:
     f.write(html_code)
